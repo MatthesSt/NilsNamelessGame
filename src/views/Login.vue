@@ -61,8 +61,7 @@ export default defineComponent({
     async login() {
       console.log("login");
       try {
-        await API.login(this.email, this.password);
-        this.$router.push("/Main");
+        if (await API.login(this.email, this.password)) this.$router.push("/Main");
       } catch (e) {
         console.log({ error: e });
       }
