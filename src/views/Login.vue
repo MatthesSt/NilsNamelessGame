@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-header">Login</div>
       <div class="card-body">
-        <div v-if="!register">
+        <div v-if="register == false">
           <form @submit="login()">
             <div>
               <input class="rounded-pill" type="email" placeholder="email@email.stuff" style="padding-left: 10px" v-model="email" required />
@@ -54,10 +54,18 @@ export default defineComponent({
       register: false,
     };
   },
+  mounted() {
+    localStorage.getItem("Username") ? this.$router.push("/Main") : null;
+  },
   methods: {
-    login() {
+    async login() {
       console.log("login");
-      API.login(this.email, this.password);
+      try {
+        await API.login(this.email, this.password);
+        this.$router.push("/Main");
+      } catch (e) {
+        console.log({ error: e });
+      }
     },
     createAcc() {
       console.log("register");
@@ -70,6 +78,7 @@ export default defineComponent({
         this.password = "";
         this.username = "";
       }
+      this.$router.push("/Main");
     },
   },
 });
