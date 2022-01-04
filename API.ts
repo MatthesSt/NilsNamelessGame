@@ -8,6 +8,29 @@ interface user {
   email: string;
   role: string;
   id: string;
+  decks: deck[];
+}
+interface deck {
+  cards: card[];
+  name: string;
+  size: number;
+}
+export interface card {
+  name: string;
+  discription: string;
+  manacost: number;
+  type: "unit" | "strategy" | "nebula" | "equipment" | "event";
+  discardAfterUser: boolean;
+  effect: any;
+  hp: number;
+  armor: number;
+  movement: number;
+  range: number;
+  tp: number;
+  up: any;
+  left: any;
+  right: any;
+  down: any;
 }
 
 export const userRole = ref("");
@@ -46,4 +69,15 @@ export async function getUsername(): Promise<any> {
   });
   const users = docs.map(users => ({ ...users.data(), id: users.id })) as unknown as user[];
   return users.filter(user => user.id == id)[0].username;
+}
+
+export async function getDecks(): Promise<string[]> {
+  const docs: QueryDocumentSnapshot<DocumentData>[] = [];
+  const id = getAuth().currentUser?.uid;
+  const querySnapshot = await getDocs(collection(getFirestore(), "users"));
+  querySnapshot.forEach(doc => {
+    docs.push(doc);
+  });
+  const users = docs.map(users => ({ ...users.data(), id: users.id })) as unknown as user[];
+  return users.filter(user => user.id == id)[0].decks.map(deck => deck.name);
 }

@@ -7,6 +7,7 @@ import Login from "../views/Login.vue";
 import Main from "../views/Main.vue";
 import DeckEditor from "../views/DeckEditor.vue";
 import LayoutEditor from "../views/LayoutEditor.vue";
+import CardEditor from "../views/CardEditor.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -28,6 +29,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/LayoutEditor",
     name: "LayoutEditor",
     component: LayoutEditor,
+  },
+  {
+    path: "/CardEditor",
+    name: "CardEditor",
+    component: CardEditor,
   },
 ];
 
