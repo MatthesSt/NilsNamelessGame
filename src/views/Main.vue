@@ -28,7 +28,7 @@ export default defineComponent({
     } catch (e) {
       console.log({ error: e });
     }
-    this.Username = localStorage.getItem("Username");
+    if (localStorage.getItem("Username")) this.Username = localStorage.getItem("Username") as string;
   },
   methods: {
     async logout() {
