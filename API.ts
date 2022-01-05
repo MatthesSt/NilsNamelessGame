@@ -17,16 +17,16 @@ interface deck {
 }
 export interface card {
   name: string;
-  discription: string;
+  description: string;
   manacost: number;
   type: "unit" | "strategy" | "nebula" | "equipment" | "event";
   discardAfterUser: boolean;
-  effect: any;
   hp: number;
   armor: number;
   movement: number;
   range: number;
   tp: number;
+  effect: any;
   up: any;
   left: any;
   right: any;
@@ -80,4 +80,9 @@ export async function getDecks(): Promise<string[]> {
   });
   const users = docs.map(users => ({ ...users.data(), id: users.id })) as unknown as user[];
   return users.filter(user => user.id == id)[0].decks.map(deck => deck.name);
+}
+export async function setCard(Card: card): Promise<void> {
+  await setDoc(doc(collection(getFirestore(), "cards")), {
+    Card: Card,
+  });
 }

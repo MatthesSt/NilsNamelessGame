@@ -3,45 +3,75 @@
     <div class="card mx-auto m-5">
       <div class="card-header">create new Card</div>
       <div class="card-body">
-        <form>
-          <input type="text" placeholder="cardname" v-model="name" required />
-          <input type="text" placeholder="description" v-model="description" required />
-          <input type="number" placeholder="manacost" v-model="manacost" max="10" min="0" required />
-          <select placeholder="type" v-model="type" required>
-            <option value="unit">Einheit</option>
-            <option value="strategy">Strategiekarte</option>
-            <option value="nebula">Nebel</option>
-            <option value="equipment">Ausrüstung</option>
-            <option value="event">Event</option>
-          </select>
-          <select v-model="discardAfterUser" required>
-            <option value="true">discard after use</option>
-            <option value="false">keep</option>
-          </select>
-          <label for="hp">hp:</label>
-          <input name="hp" placeholder="hp" type="number" required v-model="hp" max="10" min="0" />
-          <label for="armor">armor:</label>
-          <input name="armor" placeholder="armor" type="number" required v-model="armor" max="10" min="0" />
-          <label for="movement">movement:</label>
-          <input name="movement" placeholder="movement" type="number" required v-model="movement" max="10" min="0" />
-          <label for="range">range:</label>
-          <input name="range" placeholder="range" type="number" required v-model="range" max="10" min="0" />
-          <label for="tp">tp:</label>
-          <input name="tp" placeholder="tp" type="number" required v-model="tp" max="10" min="0" />
+        <form @submit.prevent="createCard()" class="m-5 mt-4">
+          <div class="row">
+            <input class="col-3" type="text" placeholder="cardname" v-model="name" required />
+            <input class="col-3" type="text" placeholder="description" v-model="description" required />
+          </div>
+          <div class="row mt-4">
+            <div class="col-3">
+              <label for="type" class="me-2">Card type:</label>
+              <select name="type" placeholder="type" v-model="type" required>
+                <option value="unit">Einheit</option>
+                <option value="strategy">Strategiekarte</option>
+                <option value="nebula">Nebel</option>
+                <option value="equipment">Ausrüstung</option>
+                <option value="event">Event</option>
+              </select>
+            </div>
+            <div class="col-3">
+              <label for="discard" class="me-2">single use ?</label>
+              <select name="discard" v-model="discardAfterUser" required>
+                <option value="true">discard after use</option>
+                <option value="false">keep</option>
+              </select>
+            </div>
+            <div class="col-3">
+              <label for="mana" class="me-2">manacost:</label>
+              <input name="mana" type="number" placeholder="manacost" v-model="manacost" max="10" min="0" required />
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-2">
+              <label for="hp" class="me-2">hp:</label>
+              <input name="hp" placeholder="hp" type="number" required v-model="hp" max="50" min="0" />
+            </div>
+            <div class="col-2">
+              <label for="armor" class="me-2">armor:</label>
+              <input name="armor" placeholder="armor" type="number" required v-model="armor" max="50" min="0" />
+            </div>
+            <div class="col-2">
+              <label for="movement" class="me-2">movement:</label>
+              <input name="movement" placeholder="movement" type="number" required v-model="movement" max="10" min="0" />
+            </div>
+
+            <div class="col-2">
+              <label for="range" class="me-2">range:</label>
+              <input name="range" placeholder="range" type="number" required v-model="range" max="10" min="0" />
+            </div>
+            <div class="col-2">
+              <label for="tp" class="me-2">tp:</label>
+              <input name="tp" placeholder="tp" type="number" required v-model="tp" max="50" min="0" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success mt-4">create Card</button>
         </form>
+        <button type="button" @click="validate()">validate</button>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
+import * as API from "../../API";
 
 export default defineComponent({
   data() {
     return {
       name: "",
-      discription: "",
-      manacost: "",
+      description: "",
+      manacost: 0,
       type: "" as "unit" | "strategy" | "nebula" | "equipment" | "event",
       discardAfterUser: false,
       hp: 0,
@@ -55,6 +85,39 @@ export default defineComponent({
       right: "" as any,
       down: "" as any,
     };
+  },
+  methods: {
+    async createCard() {
+      let newCard = {
+        name: this.name,
+        description: this.description,
+        manacost: this.manacost,
+        type: this.type,
+        discardAfterUser: this.discardAfterUser,
+        hp: this.hp,
+        armor: this.armor,
+        movement: this.movement,
+        range: this.range,
+        tp: this.tp,
+        effect: "" as any,
+        up: "" as any,
+        left: "" as any,
+        right: "" as any,
+        down: "" as any,
+      };
+      console.log({ newCard: newCard });
+      try {
+        await API.setCard(newCard);
+      } catch (e) {
+        console.log({ error: e });
+      }
+    },
+    validate() {
+      const input = "a@.d";
+      if (input.indexOf("@") <= 0 || input.indexOf("@") + 1 >= input.indexOf(".") || input.indexOf(".") + 1 >= input.length)
+        return console.log("nope");
+      console.log("test");
+    },
   },
 });
 </script>
