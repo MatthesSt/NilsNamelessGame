@@ -86,3 +86,11 @@ export async function setCard(Card: card): Promise<void> {
     Card: Card,
   });
 }
+export async function getCards(): Promise<card[]> {
+  const docs: QueryDocumentSnapshot<DocumentData>[] = [];
+  const querySnapshot = await getDocs(collection(getFirestore(), "cards"));
+  querySnapshot.forEach(doc => {
+    docs.push(doc);
+  });
+  return docs.map(cards => ({ ...cards.data(), id: cards.id })) as unknown as card[];
+}
