@@ -57,6 +57,28 @@
               <input name="tp" placeholder="tp" type="number" required v-model="tp" max="50" min="0" />
             </div>
           </div>
+          <div class="row mt-4 ps-1">
+            <div class="col-2">
+              <label for="effect" class="me-2">effect:</label>
+              <input name="effect" placeholder="effect" type="text" required v-model="effect" />
+            </div>
+            <div class="col-2">
+              <label for="up" class="me-2">up:</label>
+              <input name="up" placeholder="up" type="text" required v-model="up" />
+            </div>
+            <div class="col-2">
+              <label for="left" class="me-2">left:</label>
+              <input name="left" placeholder="left" type="text" required v-model="left" />
+            </div>
+            <div class="col-2">
+              <label for="right" class="me-2">right:</label>
+              <input name="right" placeholder="right" type="text" required v-model="right" />
+            </div>
+            <div class="col-2">
+              <label for="down" class="me-2">down:</label>
+              <input name="down" placeholder="down" type="text" required v-model="down" />
+            </div>
+          </div>
           <button type="submit" class="btn btn-success mt-4" v-if="!editingCard">create Card</button>
           <button type="submit" class="btn btn-success mt-4" v-if="editingCard">save changes</button>
         </form>
@@ -79,6 +101,7 @@
               <div class="">description: {{ card.description }}</div>
               <div>single use: {{ card.discardAfterUser ? "yes" : "no" }} | type: {{ card.type }} | Manacost: {{ card.manacost }}</div>
               <div class="">hp:{{ card.hp }} | A:{{ card.armor }} | M:{{ card.movement }} | R: {{ card.range }} | TP:{{ card.tp }}</div>
+              <div>effect: {{ card.effect }} | up: {{ card.up }} | left: {{ card.left }} | right: {{ card.right }} | down: {{ card.down }}</div>
             </div>
           </div>
         </div>
@@ -140,11 +163,11 @@ export default defineComponent({
         movement: this.movement,
         range: this.range,
         tp: this.tp,
-        effect: "" as any,
-        up: "" as any,
-        left: "" as any,
-        right: "" as any,
-        down: "" as any,
+        effect: this.effect,
+        up: this.up,
+        left: this.left,
+        right: this.right,
+        down: this.down,
       };
       console.log({ newCard: newCard });
       try {
@@ -179,9 +202,13 @@ export default defineComponent({
       this.range = card.range;
       this.tp = card.tp;
       this.id = card.id;
+      this.effect = card.effect;
+      this.up = card.up;
+      this.left = card.left;
+      this.right = card.right;
+      this.down = card.down;
     },
     async deleteCard(card: idCard) {
-      console.log(card.id);
       if (window.confirm(`Sicher das du "${card.name}" löschen möchtest ? `))
         try {
           await API.deleteCard(card.id);
@@ -208,6 +235,11 @@ export default defineComponent({
       this.range = 0;
       this.tp = 0;
       this.id = "";
+      this.effect = "";
+      this.up = "";
+      this.left = "";
+      this.right = "";
+      this.down = "";
     },
   },
 });
