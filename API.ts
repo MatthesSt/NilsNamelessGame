@@ -32,6 +32,9 @@ export interface card {
   right: any;
   down: any;
 }
+export interface idCard extends card {
+  id: string;
+}
 
 export const userRole = ref("");
 
@@ -81,16 +84,21 @@ export async function getDecks(): Promise<string[]> {
   const users = docs.map(users => ({ ...users.data(), id: users.id })) as unknown as user[];
   return users.filter(user => user.id == id)[0].decks.map(deck => deck.name);
 }
-export async function setCard(Card: card): Promise<void> {
-  await setDoc(doc(collection(getFirestore(), "cards")), {
-    Card: Card,
+export async function setCard(Card: idCard): Promise<any> {
+  await setDoc(doc(getFirestore(), "cards", Card.id), {
+    ...Card,
   });
 }
-export async function getCards(): Promise<card[]> {
+
+export async function getCards(): Promise<idCard[]> {
   const docs: QueryDocumentSnapshot<DocumentData>[] = [];
   const querySnapshot = await getDocs(collection(getFirestore(), "cards"));
   querySnapshot.forEach(doc => {
     docs.push(doc);
   });
-  return docs.map(cards => ({ ...cards.data(), id: cards.id })) as unknown as card[];
+  return docs.map(card => ({ ...card.data(), id: card.id })) as unknown as idCard[];
 }
+
+// export async function deleteCard(id): Promise<void> {
+
+// }

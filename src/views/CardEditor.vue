@@ -1,8 +1,10 @@
 <template>
   <div class="container">
     <div class="card mx-auto m-5" id="CreateCard">
-      <div class="card-header">create new Card</div>
+      <div class="card-header" v-if="!editingCard">create new Card</div>
+      <div class="card-header" v-if="editingCard">edit Card</div>
       <div class="card-body">
+        <div v-if="setCard" :class="feedbackState">{{ setCard }}</div>
         <form @submit.prevent="createCard()" class="m-5 mt-4">
           <div class="row ps-5">
             <input class="col-3" type="text" placeholder="cardname" v-model="name" required />
@@ -55,17 +57,26 @@
               <input name="tp" placeholder="tp" type="number" required v-model="tp" max="50" min="0" />
             </div>
           </div>
-          <button type="submit" class="btn btn-success mt-4">create Card</button>
+          <button type="submit" class="btn btn-success mt-4" v-if="!editingCard">create Card</button>
+          <button type="submit" class="btn btn-success mt-4" v-if="editingCard">save changes</button>
         </form>
       </div>
     </div>
     <div id="list">
       <div class="card">
-        <div class="card-body d-flex">
-          <div class="col-4" v-for="card of cards" :key="card.id">
-            <div id="top"></div>
-            <div id="middle">{{ card.manacost }} test</div>
-            <div id="bottom"></div>
+        <div class="card-body d-flex row">
+          <div class="col-4 mb-3" v-for="card of cards" :key="card.id">
+            <div class="" style="border: 1px solid black">
+              <div class="top row">
+                <div class="col-7">name: {{ card.name }}</div>
+                <div class="col-5">
+                  <button class="btn btn-warning" type="button" @click="editCard(card)">edit</button>
+                  <button class="btn btn-danger" type="button" @click="deleteCard(card)">delete</button>
+                </div>
+              </div>
+              <div class="">description: {{ card.description }}</div>
+              <div class="">hp:{{ card.hp }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -75,7 +86,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as API from "../../API";
-import type { card } from "../../API";
+import type { idCard } from "../../API";
 
 export default defineComponent({
   data() {
@@ -95,13 +106,19 @@ export default defineComponent({
       left: "" as any,
       right: "" as any,
       down: "" as any,
+      id: "",
 
-      cards: [] as card[],
+      cards: [] as idCard[],
+
+      setCard: "",
+      feedbackState: "",
+      editingCard: false,
     };
   },
   async mounted() {
     try {
       this.cards = await API.getCards();
+      console.log(this.cards);
     } catch (e) {
       console.log({ error: e });
     }
@@ -110,6 +127,7 @@ export default defineComponent({
     async createCard() {
       let newCard = {
         name: this.name,
+        id: this.id ? this.id : this.name + "id",
         description: this.description,
         manacost: this.manacost,
         type: this.type,
@@ -128,9 +146,59 @@ export default defineComponent({
       console.log({ newCard: newCard });
       try {
         await API.setCard(newCard);
+        this.feedbackState = "alert alert-success";
+        this.setCard = "Karte wurde gespeichert";
+        setTimeout(() => (this.setCard = ""), 2000);
+        this.clearInputs();
       } catch (e) {
         console.log({ error: e });
+        this.feedbackState = "alert alert-danger";
+        this.setCard = "Karte konnte nicht gespeichert werden";
+        setTimeout(() => (this.setCard = ""), 2000);
+      } finally {
+        try {
+          setTimeout(async () => (this.cards = await API.getCards()), 1000);
+        } catch (e) {
+          console.log({ error: e });
+        }
       }
+    },
+    editCard(card: idCard) {
+      this.editingCard = true;
+      this.name = card.name;
+      this.description = card.description;
+      this.manacost = card.manacost;
+      this.type = card.type;
+      this.discardAfterUser = card.discardAfterUser;
+      this.hp = card.hp;
+      this.armor = card.armor;
+      this.movement = card.movement;
+      this.range = card.range;
+      this.tp = card.tp;
+      this.id = card.id;
+    },
+    async deleteCard(card: idCard) {
+      console.log(card.id);
+      if (window.confirm(`you sure you wanna delete ${card.name}`))
+        try {
+          // await API.deleteCard(card.id);
+        } catch (e) {
+          console.log({ error: e });
+        }
+    },
+    clearInputs() {
+      this.editingCard = false;
+      this.name = "";
+      this.description = "";
+      this.manacost = 0;
+      this.type = "" as "unit" | "strategy" | "nebula" | "equipment" | "event";
+      this.discardAfterUser = false;
+      this.hp = 0;
+      this.armor = 0;
+      this.movement = 0;
+      this.range = 0;
+      this.tp = 0;
+      this.id = "";
     },
   },
 });
