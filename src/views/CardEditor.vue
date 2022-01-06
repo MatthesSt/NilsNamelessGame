@@ -14,11 +14,11 @@
             <div class="col-3">
               <label for="type" class="me-2">Card type:</label>
               <select name="type" placeholder="type" v-model="type" required>
-                <option value="unit">Einheit</option>
-                <option value="strategy">Strategiekarte</option>
-                <option value="nebula">Nebel</option>
-                <option value="equipment">Ausrüstung</option>
-                <option value="event">Event</option>
+                <option value="Einheit">Einheit</option>
+                <option value="Strategie">Strategiekarte</option>
+                <option value="Nebel">Nebel</option>
+                <option value="Ausrüstung">Ausrüstung</option>
+                <option value="Event">Event</option>
               </select>
             </div>
             <div class="col-3">
@@ -68,14 +68,17 @@
           <div class="col-4 mb-3" v-for="card of cards" :key="card.id">
             <div class="" style="border: 1px solid black">
               <div class="top row">
-                <div class="col-7">name: {{ card.name }}</div>
-                <div class="col-5">
-                  <button class="btn btn-warning" type="button" @click="editCard(card)">edit</button>
-                  <button class="btn btn-danger" type="button" @click="deleteCard(card)">delete</button>
+                <div class="row">
+                  <div class="col-7 p-0">name: {{ card.name }}</div>
+                  <div class="col-5 d-flex justify-content-end p-0">
+                    <button class="btn btn-warning" type="button" @click="editCard(card)">edit</button>
+                    <button class="btn btn-danger" type="button" @click="deleteCard(card)">delete</button>
+                  </div>
                 </div>
               </div>
               <div class="">description: {{ card.description }}</div>
-              <div class="">hp:{{ card.hp }}</div>
+              <div>single use: {{ card.discardAfterUser ? "yes" : "no" }} | type: {{ card.type }} | Manacost: {{ card.manacost }}</div>
+              <div class="">hp:{{ card.hp }} | A:{{ card.armor }} | M:{{ card.movement }} | R: {{ card.range }} | TP:{{ card.tp }}</div>
             </div>
           </div>
         </div>
@@ -179,11 +182,17 @@ export default defineComponent({
     },
     async deleteCard(card: idCard) {
       console.log(card.id);
-      if (window.confirm(`you sure you wanna delete ${card.name}`))
+      if (window.confirm(`Sicher das du "${card.name}" löschen möchtest ? `))
         try {
-          // await API.deleteCard(card.id);
+          await API.deleteCard(card.id);
         } catch (e) {
           console.log({ error: e });
+        } finally {
+          try {
+            setTimeout(async () => (this.cards = await API.getCards()), 1000);
+          } catch (e) {
+            console.log({ error: e });
+          }
         }
     },
     clearInputs() {

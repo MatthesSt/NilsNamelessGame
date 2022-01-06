@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, DocumentData, getDoc, getDocs, getFirestore, QueryDocumentSnapshot, setDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, DocumentData, getDoc, getDocs, getFirestore, QueryDocumentSnapshot, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { currentUser } from "./src/router";
 import { ref } from "vue";
@@ -99,6 +99,6 @@ export async function getCards(): Promise<idCard[]> {
   return docs.map(card => ({ ...card.data(), id: card.id })) as unknown as idCard[];
 }
 
-// export async function deleteCard(id): Promise<void> {
-
-// }
+export async function deleteCard(id: string): Promise<void> {
+  await deleteDoc(doc(getFirestore(), "cards", id));
+}
