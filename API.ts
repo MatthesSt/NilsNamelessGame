@@ -26,14 +26,26 @@ export interface card {
   movement: number;
   range: number;
   tp: number;
-  effect: any;
-  up: any;
-  left: any;
-  right: any;
-  down: any;
+  effect: effect;
+  up: sideBuff;
+  left: sideBuff;
+  right: sideBuff;
+  down: sideBuff;
 }
 export interface idCard extends card {
   id: string;
+}
+
+export interface effect {
+  type: "buff" | "heal" | "dmg";
+  amount: number;
+  stat: "TP" | "HP" | "A" | "R" | "M";
+}
+export interface sideBuff {
+  type: "buff" | "trait";
+  trait: "test" | null;
+  amount: number;
+  stat: "TP" | "HP" | "A" | "R" | "M";
 }
 
 export const userRole = ref("");

@@ -58,23 +58,41 @@
             </div>
           </div>
           <div class="row mt-4 ps-1">
-            <div class="col-2">
-              <label for="effect" class="me-2">effect:</label>
-              <input name="effect" placeholder="effect" type="text" required v-model="effect" />
+            <div class="col-6">
+              <label for="effecttype" class="me-2">effect type:</label>
+              <select name="effecttype" required v-model="effect.type">
+                <option disabled value="">typ des effektes wählen</option>
+                <option value="buff">buff</option>
+                <option value="heal">heal</option>
+                <option value="dmg">damage</option>
+              </select>
+
+              <label for="effectamount" class="me-2">effect amount:</label>
+              <input name="effectamount" required v-model="effect.amount" />
+
+              <label for="effectstat" class="me-2">effect stat:</label>
+              <select name="effectstat" required v-model="effect.stat">
+                <option disabled value="">stat auswählen</option>
+                <option v-for="effect in effectstats" :key="effect" :value="effect">{{ effect }}</option>
+              </select>
             </div>
-            <div class="col-2">
+
+            <div class="col-6">
               <label for="up" class="me-2">up:</label>
-              <input name="up" placeholder="up" type="text" required v-model="up" />
+              <select name="up" placeholder="up" required v-model="up.trait">
+                <option value="trait">trait</option>
+                <option value=""></option>
+              </select>
             </div>
-            <div class="col-2">
+            <div class="col-6">
               <label for="left" class="me-2">left:</label>
               <input name="left" placeholder="left" type="text" required v-model="left" />
             </div>
-            <div class="col-2">
+            <div class="col-6">
               <label for="right" class="me-2">right:</label>
               <input name="right" placeholder="right" type="text" required v-model="right" />
             </div>
-            <div class="col-2">
+            <div class="col-6">
               <label for="down" class="me-2">down:</label>
               <input name="down" placeholder="down" type="text" required v-model="down" />
             </div>
@@ -112,11 +130,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as API from "../../API";
-import type { idCard } from "../../API";
 
 export default defineComponent({
   data() {
     return {
+      effecttypes: ["buff", "heal", "dmg"],
+      effectamunt: 0,
+      effectstats: ["HP", "TP", "A", "R", "M"],
       name: "",
       description: "",
       manacost: 0,
@@ -127,14 +147,14 @@ export default defineComponent({
       movement: 0,
       range: 0,
       tp: 0,
-      effect: "" as any,
-      up: "" as any,
-      left: "" as any,
-      right: "" as any,
-      down: "" as any,
+      effect: {} as API.effect,
+      up: {} as API.sideBuff,
+      left: {} as API.sideBuff,
+      right: {} as API.sideBuff,
+      down: {} as API.sideBuff,
       id: "",
 
-      cards: [] as idCard[],
+      cards: [] as API.idCard[],
 
       setCard: "",
       feedbackState: "",
@@ -189,7 +209,7 @@ export default defineComponent({
         }
       }
     },
-    editCard(card: idCard) {
+    editCard(card: API.idCard) {
       this.editingCard = true;
       this.name = card.name;
       this.description = card.description;
@@ -208,7 +228,7 @@ export default defineComponent({
       this.right = card.right;
       this.down = card.down;
     },
-    async deleteCard(card: idCard) {
+    async deleteCard(card: API.idCard) {
       if (window.confirm(`Sicher das du "${card.name}" löschen möchtest ? `))
         try {
           await API.deleteCard(card.id);
