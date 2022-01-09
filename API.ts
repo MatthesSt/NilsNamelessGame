@@ -20,7 +20,7 @@ export interface card {
   description: string;
   manacost: number;
   type: "unit" | "strategy" | "nebula" | "equipment" | "event";
-  discardAfterUser: boolean;
+  discardAfterUse: boolean;
   hp: number;
   armor: number;
   movement: number;
@@ -42,8 +42,8 @@ export interface effect {
   stat: "TP" | "HP" | "A" | "R" | "M";
 }
 export interface sideBuff {
-  type: "buff" | "trait";
-  trait: "test" | null;
+  type: "stat" | "trait";
+  trait: "test1" | "priest";
   amount: number;
   stat: "TP" | "HP" | "A" | "R" | "M";
 }

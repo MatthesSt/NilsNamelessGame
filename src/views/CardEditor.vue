@@ -7,101 +7,183 @@
         <div v-if="setCard" :class="feedbackState">{{ setCard }}</div>
         <form @submit.prevent="createCard()" class="m-5 mt-4">
           <div class="row ps-5">
-            <input class="col-3" type="text" placeholder="cardname" v-model="name" required />
-            <input class="col-3" type="text" placeholder="description" v-model="description" required />
+            <input class="col-6" type="text" placeholder="cardname" v-model="name" required />
+            <input class="col-6" type="text" placeholder="description" v-model="description" required />
           </div>
           <div class="row mt-4 ps-1">
-            <div class="col-3">
+            <div class="col-6">
               <label for="type" class="me-2">Card type:</label>
-              <select name="type" placeholder="type" v-model="type" required>
-                <option value="Einheit">Einheit</option>
-                <option value="Strategie">Strategiekarte</option>
-                <option value="Nebel">Nebel</option>
-                <option value="Ausrüstung">Ausrüstung</option>
-                <option value="Event">Event</option>
+              <select name="type" required v-model="cardType">
+                <option v-for="type in cardTypes" :key="type" :value="type">{{ type }}</option>
               </select>
             </div>
-            <div class="col-3">
+            <div class="col-6">
               <label for="discard" class="me-2">single use ?</label>
               <select name="discard" v-model="discardAfterUser" required>
                 <option value="true">discard after use</option>
                 <option value="false">keep</option>
               </select>
             </div>
-            <div class="col-3">
+          </div>
+          <!-- stats -->
+          <div class="row mt-4 ps-1">
+            <div class="col-4">
               <label for="mana" class="me-2">manacost:</label>
               <input name="mana" type="number" placeholder="manacost" v-model="manacost" max="10" min="0" required />
             </div>
-          </div>
-
-          <div class="row mt-4 ps-1">
-            <div class="col-2">
+            <div class="col-4">
               <label for="hp" class="me-2">hp:</label>
               <input name="hp" placeholder="hp" type="number" required v-model="hp" max="50" min="0" />
             </div>
-            <div class="col-2">
+            <div class="col-4">
               <label for="armor" class="me-2">armor:</label>
               <input name="armor" placeholder="armor" type="number" required v-model="armor" max="50" min="0" />
             </div>
-            <div class="col-2">
+            <div class="col-4">
               <label for="movement" class="me-2">movement:</label>
               <input name="movement" placeholder="movement" type="number" required v-model="movement" max="10" min="0" />
             </div>
 
-            <div class="col-2">
+            <div class="col-4">
               <label for="range" class="me-2">range:</label>
               <input name="range" placeholder="range" type="number" required v-model="range" max="10" min="0" />
             </div>
-            <div class="col-2">
+            <div class="col-4">
               <label for="tp" class="me-2">tp:</label>
               <input name="tp" placeholder="tp" type="number" required v-model="tp" max="50" min="0" />
             </div>
           </div>
+          <!-- stats end -->
           <div class="row mt-4 ps-1">
-            <div class="col-6">
-              <label for="effecttype" class="me-2">effect type:</label>
-              <select name="effecttype" required v-model="effect.type">
-                <option disabled value="">typ des effektes wählen</option>
-                <option value="buff">buff</option>
-                <option value="heal">heal</option>
-                <option value="dmg">damage</option>
-              </select>
-
-              <label for="effectamount" class="me-2">effect amount:</label>
-              <input name="effectamount" required v-model="effect.amount" />
-
-              <label for="effectstat" class="me-2">effect stat:</label>
-              <select name="effectstat" required v-model="effect.stat">
-                <option disabled value="">stat auswählen</option>
-                <option v-for="effect in effectstats" :key="effect" :value="effect">{{ effect }}</option>
-              </select>
+            <!-- effects -->
+            <div class="col-12 row mb-3">
+              <div class="col-3">
+                <label for="effecttype" class="me-2">effect type:</label>
+                <select name="effecttype" required v-model="effect.type">
+                  <option v-for="type in effectTypes" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="effectamount" class="me-2">effect amount:</label>
+                <input name="effectamount" type="number" required v-model="effect.amount" />
+              </div>
+              <div class="col-3">
+                <label for="effectstat" class="me-2">effect stat:</label>
+                <select name="effectstat" required v-model="effect.stat">
+                  <option v-for="stat in effectStats" :key="stat" :value="stat">{{ stat }}</option>
+                </select>
+              </div>
             </div>
-
-            <div class="col-6">
-              <label for="up" class="me-2">up:</label>
-              <select name="up" placeholder="up" required v-model="up.trait">
-                <option value="trait">trait</option>
-                <option value=""></option>
-              </select>
+            <!-- effects end -->
+            <!-- side buffs -->
+            <!-- up -->
+            <div class="row">
+              <div class="col">
+                <label for="up" class="me-2">up type:</label>
+                <select name="up" v-model="up.type">
+                  <option v-for="type in sideBuffTypes" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="upStat">stat:</label>
+                <select name="upStat" v-model="up.stat">
+                  <option v-for="stat in sideBuffStats" :key="stat" :value="stat">{{ stat }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="upTrait">trait:</label>
+                <select name="upTrait" v-model="up.trait">
+                  <option v-for="trait in sideBuffTraits" :key="trait" :value="trait">{{ trait }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="upAmount">amount:</label>
+                <input name="upAmount" type="number" v-model="up.amount" />
+              </div>
             </div>
-            <div class="col-6">
-              <label for="left" class="me-2">left:</label>
-              <input name="left" placeholder="left" type="text" required v-model="left" />
+            <!-- left -->
+            <div class="row">
+              <div class="col">
+                <label for="left" class="me-2">left type:</label>
+                <select name="left" v-model="left.type">
+                  <option v-for="type in sideBuffTypes" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="leftStat">stat:</label>
+                <select name="leftStat" v-model="left.stat">
+                  <option v-for="stat in sideBuffStats" :key="stat" :value="stat">{{ stat }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="leftTrait">trait:</label>
+                <select name="leftTrait" v-model="left.trait">
+                  <option v-for="trait in sideBuffTraits" :key="trait" :value="trait">{{ trait }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="leftAmount">amount:</label>
+                <input name="leftAmount" type="number" v-model="left.amount" />
+              </div>
             </div>
-            <div class="col-6">
-              <label for="right" class="me-2">right:</label>
-              <input name="right" placeholder="right" type="text" required v-model="right" />
+            <!-- right -->
+            <div class="row">
+              <div class="col">
+                <label for="right" class="me-2">right type:</label>
+                <select name="right" v-model="right.type">
+                  <option v-for="type in sideBuffTypes" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="rightStat">stat:</label>
+                <select name="rightStat" v-model="right.stat">
+                  <option v-for="stat in sideBuffStats" :key="stat" :value="stat">{{ stat }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="rightTrait">trait:</label>
+                <select name="rightTrait" v-model="right.trait">
+                  <option v-for="trait in sideBuffTraits" :key="trait" :value="trait">{{ trait }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="rightAmount">amount:</label>
+                <input name="rightAmount" type="number" v-model="right.amount" />
+              </div>
             </div>
-            <div class="col-6">
-              <label for="down" class="me-2">down:</label>
-              <input name="down" placeholder="down" type="text" required v-model="down" />
+            <!-- down -->
+            <div class="row">
+              <div class="col">
+                <label for="down" class="me-2">down type:</label>
+                <select name="down" v-model="down.type">
+                  <option v-for="type in sideBuffTypes" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="downStat">stat:</label>
+                <select name="downStat" v-model="down.stat">
+                  <option v-for="stat in sideBuffStats" :key="stat" :value="stat">{{ stat }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="downTrait">trait:</label>
+                <select name="downTrait" v-model="down.trait">
+                  <option v-for="trait in sideBuffTraits" :key="trait" :value="trait">{{ trait }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <label for="downAmount">amount:</label>
+                <input name="downAmount" type="number" v-model="down.amount" />
+              </div>
             </div>
+            <!-- sidebuffs end -->
           </div>
           <button type="submit" class="btn btn-success mt-4" v-if="!editingCard">create Card</button>
           <button type="submit" class="btn btn-success mt-4" v-if="editingCard">save changes</button>
         </form>
       </div>
     </div>
+    <!-- display cards -->
     <div id="list">
       <div class="card">
         <div class="card-body d-flex row">
@@ -125,6 +207,7 @@
         </div>
       </div>
     </div>
+    <!-- display end -->
   </div>
 </template>
 <script lang="ts">
@@ -134,14 +217,24 @@ import * as API from "../../API";
 export default defineComponent({
   data() {
     return {
-      effecttypes: ["buff", "heal", "dmg"],
-      effectamunt: 0,
-      effectstats: ["HP", "TP", "A", "R", "M"],
+      effectTypes: ["buff", "heal", "dmg"],
+      effectAmunt: 0,
+      effectStats: ["HP", "TP", "A", "R", "M"],
+
+      cardTypes: ["unit", "strategy", "nebula", "equipment", "event"],
+
+      directions: ["up", "left", "right", "down"],
+
+      sideBuffTypes: ["trait", "stat"],
+      sideBuffTraits: ["priest", "test1", "test2"],
+      sideBuffStats: ["HP", "TP", "A", "R", "M"],
+      sideBuffAmount: 0,
+
       name: "",
       description: "",
       manacost: 0,
-      type: "" as "unit" | "strategy" | "nebula" | "equipment" | "event",
-      discardAfterUser: false,
+      cardType: "" as "unit" | "strategy" | "nebula" | "equipment" | "event",
+      discardAfterUse: false,
       hp: 0,
       armor: 0,
       movement: 0,
@@ -176,8 +269,8 @@ export default defineComponent({
         id: this.id ? this.id : this.name + "id",
         description: this.description,
         manacost: this.manacost,
-        type: this.type,
-        discardAfterUser: this.discardAfterUser,
+        type: this.cardType,
+        discardAfterUse: this.discardAfterUse,
         hp: this.hp,
         armor: this.armor,
         movement: this.movement,
@@ -214,8 +307,8 @@ export default defineComponent({
       this.name = card.name;
       this.description = card.description;
       this.manacost = card.manacost;
-      this.type = card.type;
-      this.discardAfterUser = card.discardAfterUser;
+      this.cardType = card.type;
+      this.discardAfterUse = card.discardAfterUse;
       this.hp = card.hp;
       this.armor = card.armor;
       this.movement = card.movement;
@@ -247,19 +340,19 @@ export default defineComponent({
       this.name = "";
       this.description = "";
       this.manacost = 0;
-      this.type = "" as "unit" | "strategy" | "nebula" | "equipment" | "event";
-      this.discardAfterUser = false;
+      this.cardType = "" as "unit" | "strategy" | "nebula" | "equipment" | "event";
+      this.discardAfterUse = false;
       this.hp = 0;
       this.armor = 0;
       this.movement = 0;
       this.range = 0;
       this.tp = 0;
       this.id = "";
-      this.effect = "";
-      this.up = "";
-      this.left = "";
-      this.right = "";
-      this.down = "";
+      this.effect = {} as API.effect;
+      this.up = {} as API.sideBuff;
+      this.left = {} as API.sideBuff;
+      this.right = {} as API.sideBuff;
+      this.down = {} as API.sideBuff;
     },
   },
 });
