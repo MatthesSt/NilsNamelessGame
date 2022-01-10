@@ -45,6 +45,21 @@ export interface sideBuff {
   stat: "TP" | "HP" | "A" | "R" | "M";
 }
 
+export interface game {
+  id: string;
+  users: {
+    user1: string;
+    user2: string;
+  };
+  usedTiles: tile[];
+  turns: number;
+}
+export interface tile {
+  x: number;
+  y: number;
+  cards: card[];
+}
+
 export const userRole = ref("");
 
 export async function login(email: string, password: string): Promise<boolean> {
@@ -72,15 +87,16 @@ export async function register(email: string, password: string, username: string
     username: username,
   });
 }
-export async function getUsername(): Promise<any> {
+export async function getUsername(): Promise<string> {
   const docs: QueryDocumentSnapshot<DocumentData>[] = [];
-  const id = getAuth().currentUser?.uid;
+
+  const id = currentUser.value?.uid;
   const querySnapshot = await getDocs(collection(getFirestore(), "users"));
   querySnapshot.forEach(doc => {
     docs.push(doc);
   });
   const users = docs.map(users => ({ ...users.data(), id: users.id })) as user[];
-  return users.filter(user => user.id == id)[0].username;
+  return users.filter(user => user.id == id)[0]?.username;
 }
 
 export async function getDecks(): Promise<deck[]> {
@@ -112,7 +128,27 @@ export async function deleteCard(id: string): Promise<void> {
   await deleteDoc(doc(getFirestore(), "cards", id));
 }
 
-export async function getGame(): Promise<any> {
-  const game = await getDocs(collection(getFirestore(), "game"));
-  return game;
+export async function getGames(): Promise<any> {
+  const docs: QueryDocumentSnapshot<DocumentData>[] = [];
+  const querySnapshot = await getDocs(collection(getFirestore(), "games"));
+  querySnapshot.forEach(doc => {
+    docs.push(doc);
+  });
+  return docs.map(game => ({ ...game.data(), id: game.id })) as unknown as game[];
+}
+
+export async function createGame(gameTitle: string): Promise<void> {
+  const docRef = await setDoc(doc(getFirestore(), "games", gameTitle + "id"), {
+    title: gameTitle,
+    user1: "",
+    user2: "",
+  });
+}
+export async function joinGame(gameID: string, userID: string): Promise<void> {
+  const game = (await getDoc(doc(getFirestore(), "games", gameID))) as unknown as game;
+  console.log(game);
+  await setDoc(doc(getFirestore(), "games", gameID), {
+    user1: game.users.user1 || userID,
+    user2: game.users.user2 || game.users.user1 ? userID : "",
+  });
 }

@@ -4,11 +4,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import * as API from "../../API";
 
 export default defineComponent({
   data() {
     return {};
   },
+  // async mounted() {},
 });
 </script>
 

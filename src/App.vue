@@ -1,11 +1,10 @@
 <template>
-  <nav class="d-flex justify-content-around" style="width: 100%; border-bottom: 1px solid black">
+  <nav v-if="currentUser" class="d-flex justify-content-around" style="width: 100%; border-bottom: 1px solid black">
     <a @click="$router.push('/DeckEditor')">deck editor</a>
     <a @click="$router.push('/LayoutEditor')">layout editor</a>
     <a @click="$router.push('/CardEditor')">card editor</a>
     <a @click="$router.push('/Game')">game</a>
-
-    <div>{{ Username }}</div>
+    <div>{{ currentUser.username }}</div>
     <a @click="logout()">logout</a>
   </nav>
   <router-view />
@@ -14,22 +13,16 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as API from "../API";
+import { currentUser } from "@/router";
 
 export default defineComponent({
+  setup() {
+    return { currentUser };
+  },
   data() {
     return {
       Username: "",
     };
-  },
-  async mounted() {
-    try {
-      this.Username = await API.getUsername();
-      localStorage.setItem("Username", this.Username);
-      console.log(this.Username);
-    } catch (e) {
-      console.log({ error: e });
-    }
-    if (localStorage.getItem("Username")) this.Username = localStorage.getItem("Username") as string;
   },
   methods: {
     async logout() {

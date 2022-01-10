@@ -1,32 +1,63 @@
 <template>
-  <div id="field" class="row">
-    <div class="col">test</div>
-    <div class="container col d-flex flex-column align-items-center">
-      <div v-for="row in 10" :key="row" class="row">
-        <div class="d-flex">
-          <div v-for="tile in 10" :key="tile" class="">
-            <div id="tile">{{ tile }}</div>
+  <div v-if="!playing">
+    <form class="m-5" @submit.prevent="createGame()">
+      <input type="text" placeholder="gameTitle" v-model="newGame" />
+      <!-- <input type="text" placeholder="layout" /> -->
+      <button type="submit" class="btn btn-success p-1 ms-1">create game</button>
+    </form>
+    <div>
+      <ul style="list-style-type: none">
+        <li v-for="game in games" :key="game">
+          <div>
+            {{ game }}
+            <button class="btn btn-info" @click="join(game.id)">join</button>
           </div>
-        </div>
-      </div>
+        </li>
+      </ul>
     </div>
-    <div class="col">abc</div>
   </div>
-  {{ game }}
+  <div v-if="playing">
+    <inGame />
+  </div>
 </template>
 <script lang="ts">
+import inGame from "@/components/inGame.vue";
 import { defineComponent } from "vue";
 import * as API from "../../API";
+import { currentUser } from "../router";
 
 export default defineComponent({
   data() {
     return {
-      game: "" as any,
+      newGame: "",
+      games: [] as API.game[],
+      allowed: false,
+      playing: false,
     };
   },
+  components: {
+    inGame: inGame,
+  },
   async mounted() {
-    this.game = await JSON.stringify(API.getGame());
-    console.log(this.game);
+    this.games = await API.getGames();
+    console.log({ games: this.games });
+  },
+  methods: {
+    async createGame() {
+      try {
+        await API.createGame(this.newGame);
+        this.newGame = "";
+      } catch (e) {
+        console.log({ error: e, game_vue: "createGame" });
+      }
+    },
+    async join(gameID: string) {
+      try {
+        await API.joinGame(gameID, currentUser.value!.uid);
+      } catch (e) {
+        console.log({ error: e, Game: "join" });
+      }
+    },
   },
 });
 </script>

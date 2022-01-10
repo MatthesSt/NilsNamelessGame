@@ -269,8 +269,13 @@ export default defineComponent({
       this.cards = await API.getCards();
       console.log(this.cards);
     } catch (e) {
-      console.log({ error: e });
+      console.log({ error: e, card_editor: "mounted" });
     }
+  },
+  watch: {
+    setCard() {
+      if (this.setCard) setTimeout(() => (this.setCard = ""), 2000);
+    },
   },
   methods: {
     async createCard() {
@@ -297,18 +302,17 @@ export default defineComponent({
         await API.setCard(newCard);
         this.feedbackState = "alert alert-success";
         this.setCard = "Karte wurde gespeichert";
-        setTimeout(() => (this.setCard = ""), 2000);
         this.clearInputs();
       } catch (e) {
-        console.log({ error: e });
+        console.log({ error: e, Card_editor: "setCard" });
         this.feedbackState = "alert alert-danger";
         this.setCard = "Karte konnte nicht gespeichert werden";
-        setTimeout(() => (this.setCard = ""), 2000);
       } finally {
         try {
-          setTimeout(async () => (this.cards = await API.getCards()), 1000);
+          // await new Promise<void>(resolve => setTimeout(resolve, 2000));  -> inline sleep
+          this.cards = await API.getCards();
         } catch (e) {
-          console.log({ error: e });
+          console.log({ error: e, Card_editor: "setCard" });
         }
       }
     },
@@ -339,9 +343,9 @@ export default defineComponent({
           console.log({ error: e });
         } finally {
           try {
-            setTimeout(async () => (this.cards = await API.getCards()), 1000);
+            this.cards = await API.getCards();
           } catch (e) {
-            console.log({ error: e });
+            console.log({ error: e, Card_editor: "deleteCard" });
           }
         }
     },

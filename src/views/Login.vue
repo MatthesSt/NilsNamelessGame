@@ -54,16 +54,13 @@ export default defineComponent({
       register: false,
     };
   },
-  mounted() {
-    localStorage.getItem("Username") ? this.$router.push("/Main") : null;
-  },
   methods: {
     async login() {
       console.log("login");
       try {
         if (await API.login(this.email, this.password)) this.$router.push("/Main");
       } catch (e) {
-        console.log({ error: e });
+        console.log({ error: e, login: "login" });
       }
     },
     createAcc() {
