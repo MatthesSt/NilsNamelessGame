@@ -19,7 +19,7 @@
             </div>
             <div class="col-6">
               <label for="discard" class="me-2">single use ?</label>
-              <select name="discard" v-model="discardAfterUser" required>
+              <select name="discard" v-model="discardAfterUse" required>
                 <option value="true">discard after use</option>
                 <option value="false">keep</option>
               </select>
@@ -199,7 +199,7 @@
                 </div>
               </div>
               <div class="">description: {{ card.description }}</div>
-              <div>single use: {{ card.discardAfterUser ? "yes" : "no" }} | type: {{ card.type }} | Manacost: {{ card.manacost }}</div>
+              <div>single use: {{ card.discardAfterUse ? "yes" : "no" }} | type: {{ card.type }} | Manacost: {{ card.manacost }}</div>
               <div class="">hp:{{ card.hp }} | A:{{ card.armor }} | M:{{ card.movement }} | R: {{ card.range }} | TP:{{ card.tp }}</div>
               <div>effect: {{ card.effect }} | up: {{ card.up }} | left: {{ card.left }} | right: {{ card.right }} | down: {{ card.down }}</div>
             </div>
