@@ -3,6 +3,8 @@
     <a @click="$router.push('/DeckEditor')">deck editor</a>
     <a @click="$router.push('/LayoutEditor')">layout editor</a>
     <a @click="$router.push('/CardEditor')">card editor</a>
+    <a @click="$router.push('/Game')">game</a>
+
     <div>{{ Username }}</div>
     <a @click="logout()">logout</a>
   </nav>

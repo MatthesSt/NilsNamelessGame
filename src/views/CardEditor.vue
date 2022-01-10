@@ -29,28 +29,28 @@
           <div class="row mt-4 ps-1">
             <div class="col-4">
               <label for="mana" class="me-2">manacost:</label>
-              <input name="mana" type="number" placeholder="manacost" v-model="manacost" max="10" min="0" required />
+              <input name="mana" type="number" placeholder="manacost" v-model="manacost" max="10" min="0" />
             </div>
             <div class="col-4">
               <label for="hp" class="me-2">hp:</label>
-              <input name="hp" placeholder="hp" type="number" required v-model="hp" max="50" min="0" />
+              <input name="hp" placeholder="hp" type="number" v-model="hp" max="50" min="0" />
             </div>
             <div class="col-4">
               <label for="armor" class="me-2">armor:</label>
-              <input name="armor" placeholder="armor" type="number" required v-model="armor" max="50" min="0" />
+              <input name="armor" placeholder="armor" type="number" v-model="armor" max="50" min="0" />
             </div>
             <div class="col-4">
               <label for="movement" class="me-2">movement:</label>
-              <input name="movement" placeholder="movement" type="number" required v-model="movement" max="10" min="0" />
+              <input name="movement" placeholder="movement" type="number" v-model="movement" max="10" min="0" />
             </div>
 
             <div class="col-4">
               <label for="range" class="me-2">range:</label>
-              <input name="range" placeholder="range" type="number" required v-model="range" max="10" min="0" />
+              <input name="range" placeholder="range" type="number" v-model="range" max="10" min="0" />
             </div>
             <div class="col-4">
               <label for="tp" class="me-2">tp:</label>
-              <input name="tp" placeholder="tp" type="number" required v-model="tp" max="50" min="0" />
+              <input name="tp" placeholder="tp" type="number" v-model="tp" max="50" min="0" />
             </div>
           </div>
           <!-- stats end -->
@@ -59,17 +59,17 @@
             <div class="col-12 row mb-3">
               <div class="col-3">
                 <label for="effecttype" class="me-2">effect type:</label>
-                <select name="effecttype" required v-model="effect.type">
+                <select name="effecttype" v-model="effect.type">
                   <option v-for="type in effectTypes" :key="type" :value="type">{{ type }}</option>
                 </select>
               </div>
               <div class="col-6">
                 <label for="effectamount" class="me-2">effect amount:</label>
-                <input name="effectamount" type="number" required v-model="effect.amount" />
+                <input name="effectamount" type="number" v-model="effect.amount" />
               </div>
               <div class="col-3">
                 <label for="effectstat" class="me-2">effect stat:</label>
-                <select name="effectstat" required v-model="effect.stat">
+                <select name="effectstat" v-model="effect.stat">
                   <option v-for="stat in effectStats" :key="stat" :value="stat">{{ stat }}</option>
                 </select>
               </div>
@@ -201,7 +201,17 @@
               <div class="">description: {{ card.description }}</div>
               <div>single use: {{ card.discardAfterUse ? "yes" : "no" }} | type: {{ card.type }} | Manacost: {{ card.manacost }}</div>
               <div class="">hp:{{ card.hp }} | A:{{ card.armor }} | M:{{ card.movement }} | R: {{ card.range }} | TP:{{ card.tp }}</div>
-              <div>effect: {{ card.effect }} | up: {{ card.up }} | left: {{ card.left }} | right: {{ card.right }} | down: {{ card.down }}</div>
+              <div>
+                effect: {{ card.effect.type }} | {{ card.effect.stat }} | {{ card.effect.amount }}
+                <br />
+                up: {{ card.up.type }} | {{ card.up.stat }} | {{ card.up.amount }}
+                <br />
+                left: {{ card.left.type }} | {{ card.left.stat }} | {{ card.left.amount }}
+                <br />
+                right: {{ card.right.type }} | {{ card.right.stat }} | {{ card.right.amount }}
+                <br />
+                down: {{ card.down.type }} | {{ card.down.stat }} | {{ card.down.amount }}
+              </div>
             </div>
           </div>
         </div>
@@ -247,7 +257,7 @@ export default defineComponent({
       down: {} as API.sideBuff,
       id: "",
 
-      cards: [] as API.idCard[],
+      cards: [] as API.card[],
 
       setCard: "",
       feedbackState: "",
@@ -302,7 +312,7 @@ export default defineComponent({
         }
       }
     },
-    editCard(card: API.idCard) {
+    editCard(card: API.card) {
       this.editingCard = true;
       this.name = card.name;
       this.description = card.description;
@@ -321,7 +331,7 @@ export default defineComponent({
       this.right = card.right;
       this.down = card.down;
     },
-    async deleteCard(card: API.idCard) {
+    async deleteCard(card: API.card) {
       if (window.confirm(`Sicher das du "${card.name}" löschen möchtest ? `))
         try {
           await API.deleteCard(card.id);

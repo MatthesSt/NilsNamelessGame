@@ -61,7 +61,7 @@ export default defineComponent({
     return {
       createDeck: false,
       editDeck: false,
-      decks: [] as string[],
+      decks: [] as API.deck[],
       currentDeck: "",
       newDeckName: "",
     };

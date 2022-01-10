@@ -8,6 +8,7 @@ import Main from "../views/Main.vue";
 import DeckEditor from "../views/DeckEditor.vue";
 import LayoutEditor from "../views/LayoutEditor.vue";
 import CardEditor from "../views/CardEditor.vue";
+import Game from "../views/Game.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -34,6 +35,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/CardEditor",
     name: "CardEditor",
     component: CardEditor,
+  },
+  {
+    path: "/Game",
+    name: "Game",
+    component: Game,
   },
 ];
 

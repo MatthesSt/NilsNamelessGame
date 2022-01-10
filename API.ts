@@ -10,12 +10,13 @@ interface user {
   id: string;
   decks: deck[];
 }
-interface deck {
+export interface deck {
   cards: card[];
   name: string;
   size: number;
 }
 export interface card {
+  id: string;
   name: string;
   description: string;
   manacost: number;
@@ -32,10 +33,6 @@ export interface card {
   right: sideBuff;
   down: sideBuff;
 }
-export interface idCard extends card {
-  id: string;
-}
-
 export interface effect {
   type: "buff" | "heal" | "dmg";
   amount: number;
@@ -82,35 +79,40 @@ export async function getUsername(): Promise<any> {
   querySnapshot.forEach(doc => {
     docs.push(doc);
   });
-  const users = docs.map(users => ({ ...users.data(), id: users.id })) as unknown as user[];
+  const users = docs.map(users => ({ ...users.data(), id: users.id })) as user[];
   return users.filter(user => user.id == id)[0].username;
 }
 
-export async function getDecks(): Promise<string[]> {
+export async function getDecks(): Promise<deck[]> {
   const docs: QueryDocumentSnapshot<DocumentData>[] = [];
   const id = getAuth().currentUser?.uid;
   const querySnapshot = await getDocs(collection(getFirestore(), "users"));
   querySnapshot.forEach(doc => {
     docs.push(doc);
   });
-  const users = docs.map(users => ({ ...users.data(), id: users.id })) as unknown as user[];
-  return users.filter(user => user.id == id)[0].decks.map(deck => deck.name);
+  const users = docs.map(users => ({ ...users.data(), id: users.id })) as user[];
+  return users.filter(user => user.id == id)[0].decks as deck[];
 }
-export async function setCard(Card: idCard): Promise<any> {
+export async function setCard(Card: card): Promise<any> {
   await setDoc(doc(getFirestore(), "cards", Card.id), {
     ...Card,
   });
 }
 
-export async function getCards(): Promise<idCard[]> {
+export async function getCards(): Promise<card[]> {
   const docs: QueryDocumentSnapshot<DocumentData>[] = [];
   const querySnapshot = await getDocs(collection(getFirestore(), "cards"));
   querySnapshot.forEach(doc => {
     docs.push(doc);
   });
-  return docs.map(card => ({ ...card.data(), id: card.id })) as unknown as idCard[];
+  return docs.map(card => ({ ...card.data(), id: card.id })) as unknown as card[];
 }
 
 export async function deleteCard(id: string): Promise<void> {
   await deleteDoc(doc(getFirestore(), "cards", id));
+}
+
+export async function getGame(): Promise<any> {
+  const game = await getDocs(collection(getFirestore(), "game"));
+  return game;
 }
