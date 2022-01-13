@@ -1,4 +1,16 @@
-import { addDoc, collection, deleteDoc, doc, DocumentData, getDoc, getDocs, getFirestore, QueryDocumentSnapshot, setDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  DocumentData,
+  getDoc,
+  getDocs,
+  getFirestore,
+  QueryDocumentSnapshot,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { currentUser } from "./src/router";
 import { ref } from "vue";
@@ -47,9 +59,13 @@ export interface sideBuff {
 
 export interface game {
   id: string;
-  users: {
-    user1: string;
-    user2: string;
+  user1: {
+    id: string;
+    name: string;
+  };
+  user2: {
+    id: string;
+    name: string;
   };
   usedTiles: tile[];
   turns: number;
@@ -144,11 +160,18 @@ export async function createGame(gameTitle: string): Promise<void> {
     user2: "",
   });
 }
-export async function joinGame(gameID: string, userID: string): Promise<void> {
+export async function joinGame(gameID: string, userID: string, username: string): Promise<void> {
   const game = (await getDoc(doc(getFirestore(), "games", gameID))) as unknown as game;
-  console.log(game);
   await setDoc(doc(getFirestore(), "games", gameID), {
-    user1: game.users.user1 || userID,
-    user2: game.users.user2 || game.users.user1 ? userID : "",
+    user1: game.user1 || { id: userID, name: username },
+    user2: game.user2 || game.user1 ? { id: userID, name: username } : "",
   });
+}
+
+export async function setDecks(Decks: deck[]): Promise<void> {
+  const uid = currentUser.value?.uid;
+  if (uid)
+    await updateDoc(doc(getFirestore(), "users", uid), {
+      decks: Decks,
+    });
 }
