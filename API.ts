@@ -59,16 +59,8 @@ export interface sideBuff {
 
 export interface game {
   id: string;
-  user1: {
-    id: string;
-    name: string;
-    deck: deck;
-  };
-  user2: {
-    id: string;
-    name: string;
-    deck: deck;
-  };
+  user1: Player;
+  user2: Player;
   usedTiles: tile[];
   turns: number;
 }
@@ -76,6 +68,11 @@ export interface tile {
   x: number;
   y: number;
   cards: card[];
+}
+export interface Player {
+  id: string;
+  name: string;
+  deck: deck;
 }
 
 export const userRole = ref("");
