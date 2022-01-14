@@ -1,4 +1,6 @@
 <template>
+  <Navbar />
+
   <div class="container">
     <div class="card mx-auto m-5" id="CreateCard">
       <div class="card-header" v-if="!editingCard">create new Card</div>
@@ -223,8 +225,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as API from "../../API";
+import Navbar from "@/components/nav.vue";
 
 export default defineComponent({
+  components: {
+    Navbar: Navbar,
+  },
   data() {
     return {
       effectTypes: ["buff", "heal", "dmg"],

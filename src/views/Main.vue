@@ -1,16 +1,19 @@
 <template>
-  <div class="container d-flex align-items-center justify-content-center" style=""></div>
+  <Navbar />
+  <div></div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import * as API from "../../API";
+import Navbar from "@/components/nav.vue";
 
 export default defineComponent({
   data() {
     return {};
   },
-  // async mounted() {},
+  components: {
+    Navbar: Navbar,
+  },
 });
 </script>
 

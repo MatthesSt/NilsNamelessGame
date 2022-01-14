@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <div class="container mt-5">
     <div v-if="userMsg" :class="msgType">{{ userMsg }}</div>
     <div class="card d-flex">
@@ -101,10 +102,14 @@
 import { defineComponent } from "vue";
 import * as API from "../../API";
 import { currentUser } from "@/router";
+import Navbar from "@/components/nav.vue";
 
 export default defineComponent({
   setup() {
     return { currentUser };
+  },
+  components: {
+    Navbar: Navbar,
   },
   data() {
     return {

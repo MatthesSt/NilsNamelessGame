@@ -1,5 +1,6 @@
 <template>
   <div v-if="!playing">
+    <Navbar />
     <form class="m-5" @submit.prevent="createGame()">
       <input type="text" placeholder="gameTitle" v-model="newGame" />
       <!-- <input type="text" placeholder="layout" /> -->
@@ -49,6 +50,8 @@
 </template>
 <script lang="ts">
 import inGame from "@/components/inGame.vue";
+import Navbar from "@/components/nav.vue";
+
 import { defineComponent } from "vue";
 import * as API from "../../API";
 import { currentUser } from "../router";
@@ -72,6 +75,7 @@ export default defineComponent({
   },
   components: {
     inGame: inGame,
+    Navbar: Navbar,
   },
   watch: {
     userMsg() {
