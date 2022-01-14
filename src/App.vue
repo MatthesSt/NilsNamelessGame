@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="currentUser" class="d-flex justify-content-around" style="width: 100%; border-bottom: 1px solid black">
+  <nav v-if="currentUser && !playing" class="d-flex justify-content-around" style="width: 100%; border-bottom: 1px solid black">
     <a @click="$router.push('/DeckEditor')">deck editor</a>
     <a @click="$router.push('/LayoutEditor')">layout editor</a>
     <a @click="$router.push('/CardEditor')">card editor</a>
@@ -14,10 +14,11 @@
 import { defineComponent } from "vue";
 import * as API from "../API";
 import { currentUser } from "@/router";
+import { playing } from "@/state";
 
 export default defineComponent({
   setup() {
-    return { currentUser };
+    return { currentUser, playing };
   },
   data() {
     return {

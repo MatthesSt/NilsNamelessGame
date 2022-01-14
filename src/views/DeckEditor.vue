@@ -17,6 +17,7 @@
           </button>
           <button
             class="btn btn-secondary rounded-pill"
+            disabled
             type="button"
             @click="
               createDeck = false;
@@ -65,8 +66,8 @@
             <div class="row">
               <input class="col-6 offset-3" type="text" placeholder="name" required v-model="currentDeck.name" />
               <div class="col-6 offset-3" v-for="(card, index) in currentDeck.cards" :key="card">
-                <select style="height: 34px" class="col-11 mt-2" v-model="currentDeck.cards[index]">
-                  <option v-for="card in cards" :key="card" :value="card">{{ card.name }}</option>
+                <select style="height: 34px" class="col-11 mt-2" v-model="currentDeck.cards">
+                  <option v-for="card in cards" :key="card" :value="card.id">{{ card.name }}</option>
                 </select>
                 <button
                   id="deleteCard"
@@ -139,18 +140,17 @@ export default defineComponent({
       // this.currentDeck = ;
     },
     async setDeck() {
-      // eslint-disable-next-line no-debugger
-      debugger;
       if (this.decks)
         if (this.decks.some(deck => deck.name == this.newDeck.name)) {
-          this.userMsg = "deckname already exists";
           this.msgType = "alert alert-danger";
+          this.userMsg = "deckname already exists";
+          return;
         }
       let newDeckArray = [...this.decks, this.newDeck];
       try {
         await API.setDecks(newDeckArray);
-        this.userMsg = "deck created";
         this.msgType = "alert alert-success";
+        this.userMsg = "deck created";
         this.decks = (await API.getDecks()) || [];
       } catch (e) {
         console.log({ error: e, Deck_editor: "createNewDeck" });

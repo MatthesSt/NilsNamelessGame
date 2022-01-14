@@ -62,10 +62,12 @@ export interface game {
   user1: {
     id: string;
     name: string;
+    deck: deck;
   };
   user2: {
     id: string;
     name: string;
+    deck: deck;
   };
   usedTiles: tile[];
   turns: number;
@@ -160,11 +162,11 @@ export async function createGame(gameTitle: string): Promise<void> {
     user2: "",
   });
 }
-export async function joinGame(gameID: string, userID: string, username: string): Promise<void> {
+export async function joinGame(gameID: string, userID: string, username: string, selectedDeck: deck): Promise<void> {
   const game = (await getDoc(doc(getFirestore(), "games", gameID))) as unknown as game;
   await setDoc(doc(getFirestore(), "games", gameID), {
-    user1: game.user1 || { id: userID, name: username },
-    user2: game.user2 || game.user1 ? { id: userID, name: username } : "",
+    user1: game.user1 || { id: userID, name: username, deck: selectedDeck },
+    user2: game.user2 || game.user1 ? { id: userID, name: username, deck: selectedDeck } : "",
   });
 }
 

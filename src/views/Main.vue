@@ -1,5 +1,5 @@
 <template>
-  <div class="container d-flex align-items-center justify-content-center" style="height: 100vh"></div>
+  <div class="container d-flex align-items-center justify-content-center" style=""></div>
 </template>
 
 <script lang="ts">

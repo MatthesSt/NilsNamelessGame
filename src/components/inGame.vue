@@ -1,16 +1,18 @@
 <template>
   <div id="field" class="row">
-    <div class="col">test</div>
+    <div id="player1" class="col">
+      <div id="tile"></div>
+    </div>
     <div class="container col d-flex flex-column align-items-center">
       <div v-for="row in 10" :key="row" class="row">
         <div class="d-flex">
-          <div v-for="tile in 10" :key="tile" class="">
-            <div id="tile">{{ tile }}</div>
+          <div v-for="tile in 7" :key="tile" class="">
+            <div id="tile">{{ tile }},{{ row }}</div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col">abc</div>
+    <div id="player2" class="col">abc</div>
   </div>
 </template>
 <script lang="ts">
@@ -18,15 +20,21 @@ import { defineComponent } from "vue";
 import * as API from "../../API";
 
 export default defineComponent({
+  props: {
+    playing: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
-      game: "" as any,
+      games: [] as API.game[],
       allowed: false,
     };
   },
   async mounted() {
-    this.game = await JSON.stringify(API.getGames());
-    console.log(this.game);
+    this.games = await API.getGames();
+    console.log(this.games.find(game => (game.id = this.playing)));
   },
 });
 </script>
