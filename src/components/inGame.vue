@@ -2,8 +2,10 @@
   <div id="game" class="d-flex m-3 justify-content-center">
     <div id="self" class="">
       <div class="playerSection">
-        <div>{{ self.username }}</div>
-        <div class="tile m-2">deck: {{ self.deck }}</div>
+        <div v-if="self">
+          <div>{{ self.deck }}</div>
+          <div class="m-2 row">deck: {{ self.deck }}</div>
+        </div>
       </div>
     </div>
     <div class="playerStrategy">
@@ -27,8 +29,10 @@
     </div>
     <div id="enemy" class="">
       <div class="playerSection">
-        <div>{{ game.user2?.name ?? "enemy" }}</div>
-        <div class="tile m-2">deck</div>
+        <div v-if="self">
+          <div>{{ self.name ?? "enemy" }}</div>
+          <div class="m-2 row">deck: {{ self.deck }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -53,10 +57,13 @@ export default defineComponent({
       game: {} as API.game,
       enemy: {} as API.Player,
       self: {} as API.Player,
+      cards: [] as API.card[],
+
       allowed: false,
     };
   },
   async mounted() {
+    this.cards = await API.getCards();
     this.game = (await API.getGames()).find((game: API.game) => (game.id = this.playing));
     console.log(this.game);
     switch (this.game.user1.id == this.currentUser?.uid) {
