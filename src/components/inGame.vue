@@ -2,9 +2,10 @@
   <div id="game" class="d-flex m-3 justify-content-center">
     <div id="self" class="">
       <div class="playerSection">
-        <div v-if="self">
-          <div>{{ self.deck }}</div>
-          <div class="m-2 row">deck: {{ self.deck }}</div>
+        <div v-if="self" class="d-flex m-2 row">
+          <div style="border-bottom: 1px solid black">{{ self.name }}</div>
+          <div class="">deck: {{ self.deck?.name }}</div>
+          <div>cards: {{ self.deck?.cards.length }}</div>
         </div>
       </div>
     </div>
@@ -29,9 +30,10 @@
     </div>
     <div id="enemy" class="">
       <div class="playerSection">
-        <div v-if="self">
-          <div>{{ self.name ?? "enemy" }}</div>
-          <div class="m-2 row">deck: {{ self.deck }}</div>
+        <div v-if="self" class="d-flex m-2 row">
+          <div style="border-bottom: 1px solid black">{{ self.name ?? "enemy" }}</div>
+          <div class="">deck: {{ self.deck?.name }}</div>
+          <div>cards: {{ self.deck?.cards.length }}</div>
         </div>
       </div>
     </div>
@@ -76,6 +78,7 @@ export default defineComponent({
         this.self = this.game.user2;
         break;
     }
+    console.log({ self: this.self, enemy: this.enemy });
   },
 });
 </script>
@@ -91,9 +94,9 @@ export default defineComponent({
   height: 100%;
 }
 .playerStrategy {
-  border: 1px solid green;
+  border: 2px solid green;
 }
 #field {
-  border: 1px solid blue;
+  border: 2px solid blue;
 }
 </style>
