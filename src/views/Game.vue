@@ -1,58 +1,64 @@
 <template>
-  <div v-if="!playing">
-    <Navbar />
-    <form class="m-5" @submit.prevent="createGame()">
-      <input type="text" placeholder="gameTitle" v-model="newGame" />
-      <!-- <input type="text" placeholder="layout" /> -->
-      <button type="submit" class="btn btn-success p-1 ms-1">create game</button>
-    </form>
-    <div v-if="userMsg" :class="msgType">{{ userMsg }}</div>
-    <div>
-      <ul style="list-style-type: none">
-        <li v-for="game in games" :key="game">
-          <div id="gameCard" class="m-4 p-2" style="border: 1px solid #00bb55">
-            <p>ID: {{ game.id }}</p>
-            <div class="row">
-              <div class="col-4">Player 1:</div>
-              <div class="col-8">{{ game.user1.name }}</div>
-            </div>
-            <div class="row">
-              <div class="col-4">Player 2:</div>
-              <div class="col-8">{{ game.user2.name }}</div>
-            </div>
-            <div class="row">
-              <div class="col-4">Selected Deck:</div>
-              <div v-if="game.user1.id == currentUser?.uid" class="col-8">{{ game.user1.deck?.name }}</div>
-              <div v-else-if="game.user2.id == currentUser?.uid" class="col-8">{{ game.user2.deck?.name }}</div>
-              <div v-else class="col-8">
-                <select v-model="selectedDeck">
-                  <option disabled value="">Please select a deck</option>
-                  <option v-for="deck in decks" :key="deck" :value="deck">{{ deck.name }}</option>
-                </select>
-              </div>
-            </div>
-            <button
-              v-if="game.user1.id == currentUser?.uid || game.user2.id == currentUser?.uid"
-              class="btn btn-info w-50 mt-3 mb-2"
-              @click="play(game.id)"
-            >
-              play
-            </button>
-            <button v-else class="btn btn-info w-50 mt-3 mb-2" @click="join(game.id)">join</button>
-          </div>
-        </li>
-      </ul>
-    </div>
+  <div v-if="loading">
+    <div class="spinner-border spinner-border-sm"></div>
+    loading...
   </div>
-  <div v-if="playing">
-    <inGame :playing="playing" />
+  <div v-else>
+    <div v-if="!playing">
+      <Navbar />
+      <form class="m-5" @submit.prevent="createGame()">
+        <input type="text" placeholder="gameTitle" v-model="newGame" />
+        <!-- <input type="text" placeholder="layout" /> -->
+        <button type="submit" class="btn btn-success p-1 ms-1">create game</button>
+      </form>
+      <div v-if="userMsg" :class="msgType">{{ userMsg }}</div>
+      <div>
+        <ul style="list-style-type: none">
+          <li v-for="game in games" :key="game">
+            <div id="gameCard" class="m-4 p-2" style="border: 1px solid #00bb55">
+              <p>ID: {{ game.id }}</p>
+              <div class="row">
+                <div class="col-4">Player 1:</div>
+                <div class="col-8">{{ game.user1.name }}</div>
+              </div>
+              <div class="row">
+                <div class="col-4">Player 2:</div>
+                <div class="col-8">{{ game.user2.name }}</div>
+              </div>
+              <div class="row">
+                <div class="col-4">Selected Deck:</div>
+                <div v-if="game.user1.id == currentUser?.uid" class="col-8">{{ game.user1.deck?.name }}</div>
+                <div v-else-if="game.user2.id == currentUser?.uid" class="col-8">{{ game.user2.deck?.name }}</div>
+                <div v-else class="col-8">
+                  <select v-model="selectedDeck">
+                    <option disabled value="">Please select a deck</option>
+                    <option v-for="deck in decks" :key="deck" :value="deck">{{ deck.name }}</option>
+                  </select>
+                </div>
+              </div>
+              <button
+                v-if="game.user1.id == currentUser?.uid || game.user2.id == currentUser?.uid"
+                class="btn btn-info w-50 mt-3 mb-2"
+                @click="play(game.id)"
+              >
+                play
+              </button>
+              <button v-else class="btn btn-info w-50 mt-3 mb-2" @click="join(game.id)">join</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div v-if="playing">
+      <inGame :playing="playing" />
+    </div>
   </div>
 </template>
 <script lang="ts">
 import inGame from "@/components/inGame.vue";
 import Navbar from "@/components/nav.vue";
 
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import * as API from "../../API";
 import { currentUser } from "../router";
 import * as State from "@/state";
@@ -63,6 +69,7 @@ export default defineComponent({
   },
   data() {
     return {
+      loading: true,
       newGame: "",
       games: [] as API.game[],
       allowed: false,
@@ -81,10 +88,15 @@ export default defineComponent({
     userMsg() {
       if (this.userMsg) setTimeout(() => (this.userMsg = ""), 2000);
     },
+    playing() {
+      window.location.hash = "#" + this.playing;
+    },
   },
   async mounted() {
     this.games = await API.getGames();
     this.decks = await API.getDecks();
+    this.playing = window.location.hash ? window.location.hash?.slice(1) : "";
+    this.loading = false;
   },
   methods: {
     async createGame() {

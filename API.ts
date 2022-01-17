@@ -59,10 +59,12 @@ export interface sideBuff {
 
 export interface game {
   id: string;
+  title: string;
   user1: Player;
   user2: Player;
   usedTiles: tile[];
   turns: number;
+  player: number;
 }
 export interface tile {
   x: number;
@@ -72,7 +74,13 @@ export interface tile {
 export interface Player {
   id: string;
   name: string;
-  deck: deck;
+  deck: {
+    cards: { id: string }[];
+    name: string;
+    size: number;
+  };
+  handcards: card[];
+  discarded: card[];
 }
 
 export const userRole = ref("");
@@ -153,15 +161,19 @@ export async function getGames(): Promise<any> {
 }
 
 export async function createGame(gameTitle: string): Promise<void> {
-  const docRef = await setDoc(doc(getFirestore(), "games", gameTitle + "id"), {
+  const docRef = await setDoc(doc(getFirestore(), "games", gameTitle + "fuid"), {
     title: gameTitle,
     user1: "",
     user2: "",
+    player: 1,
+    usedTiles: [],
+    turns: 0,
   });
 }
 export async function joinGame(gameID: string, userID: string, username: string, selectedDeck: deck): Promise<void> {
-  const game = (await getDoc(doc(getFirestore(), "games", gameID))) as unknown as game;
-  await setDoc(doc(getFirestore(), "games", gameID), {
+  const game = (await getDoc(doc(getFirestore(), "games", gameID))).data() as unknown as game;
+  console.log(game);
+  await updateDoc(doc(getFirestore(), "games", gameID), {
     user1: game.user1 || { id: userID, name: username, deck: selectedDeck },
     user2: game.user2 || game.user1 ? { id: userID, name: username, deck: selectedDeck } : "",
   });

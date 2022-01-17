@@ -4,7 +4,7 @@
       <div class="card-header">Login</div>
       <div class="card-body">
         <div v-if="register == false">
-          <form @submit="login()">
+          <form @submit.prevent="login()">
             <div>
               <input class="rounded-pill" type="email" placeholder="email@email.stuff" style="padding-left: 10px" v-model="email" required />
               <input class="rounded-pill" type="password" placeholder="password" style="padding-left: 10px" v-model="password" required />
@@ -16,7 +16,7 @@
           </form>
         </div>
         <div v-if="register">
-          <form @submit="createAcc()">
+          <form @submit.prevent="createAcc()">
             <div>
               <input class="rounded-pill" type="email" placeholder="email@email.stuff" style="padding-left: 10px" v-model="email" required />
               <input
@@ -60,7 +60,7 @@ export default defineComponent({
       try {
         if (await API.login(this.email, this.password)) this.$router.push("/Main");
       } catch (e) {
-        console.log({ error: e, login: "login" });
+        console.error(e, "login");
       }
     },
     createAcc() {

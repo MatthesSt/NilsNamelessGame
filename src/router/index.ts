@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from "vue-router";
 import { getAuth, User } from "@firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref } from "vue";
@@ -50,7 +50,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory("/NilsNamelessGame/"),
   routes,
 });
 
