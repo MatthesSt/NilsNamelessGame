@@ -34,9 +34,9 @@
             <div class="row">
               <input class="col-12" type="text" placeholder="name" required v-model="newDeck.name" />
               <h2 class="text-start col-12">Cards:</h2>
-              <div class="col-11 row" v-for="(card, index) in newDeck.cards" :key="card">
+              <div class="col-11 row" v-for="(card, index) in newDeck.cards" :key="card.id">
                 <select class="col-11" style="height: 34px" v-model="card.id">
-                  <option v-for="card in cards" :key="card" :value="card.id">{{ card.name }}</option>
+                  <option v-for="card in cards" :key="card.id" :value="card.id">{{ card.name }}</option>
                 </select>
                 <button
                   v-if="index > 0"
@@ -58,7 +58,7 @@
           <form class="m-5">
             <div class="row">
               <select class="col-4" type="text" placeholder="name" required v-model="currentDeck">
-                <option v-for="deck in decks" :key="deck" :value="deck">{{ deck.name }}</option>
+                <option v-for="deck in decks" :key="deck.name" :value="deck">{{ deck.name }}</option>
               </select>
               <button type="submit" class="btn btn-success col-2 ms-2" @submit.prevent="openDeck()">open Deck</button>
             </div>
@@ -66,9 +66,9 @@
           <div>
             <div class="row">
               <input class="col-6 offset-3" type="text" placeholder="name" required v-model="currentDeck.name" />
-              <div class="col-6 offset-3" v-for="(card, index) in currentDeck.cards" :key="card">
+              <div class="col-6 offset-3" v-for="(card, index) in currentDeck.cards" :key="card.id">
                 <select style="height: 34px" class="col-11 mt-2" v-model="currentDeck.cards">
-                  <option v-for="card in cards" :key="card" :value="card.id">{{ card.name }}</option>
+                  <option v-for="card in cards" :key="card.id" :value="card.id">{{ card.name }}</option>
                 </select>
                 <button
                   id="deleteCard"
@@ -84,7 +84,7 @@
                 id="addCard"
                 type="button"
                 class="btn btn-success col-1 ms-1 p-1 mt-2"
-                style="border-radius: 50%; width: 34px; heigth: 34px"
+                style="border-radius: 50%; width: 34px; height: 34px"
                 @click="addCard()"
               >
                 +
@@ -122,7 +122,6 @@ export default defineComponent({
       newDeck: {
         cards: [{} as API.card],
         name: "",
-        size: 1,
       } as API.deck,
       cards: [] as API.card[],
     };

@@ -14,7 +14,7 @@
       <div v-if="userMsg" :class="msgType">{{ userMsg }}</div>
       <div>
         <ul style="list-style-type: none">
-          <li v-for="game in games" :key="game">
+          <li v-for="game in games" :key="game.id">
             <div id="gameCard" class="m-4 p-2" style="border: 1px solid #00bb55">
               <p>ID: {{ game.id }}</p>
               <div class="row">
@@ -32,7 +32,7 @@
                 <div v-else class="col-8">
                   <select v-model="selectedDeck">
                     <option disabled value="">Please select a deck</option>
-                    <option v-for="deck in decks" :key="deck" :value="deck">{{ deck.name }}</option>
+                    <option v-for="deck in decks" :key="deck.name" :value="deck">{{ deck.name }}</option>
                   </select>
                 </div>
               </div>
