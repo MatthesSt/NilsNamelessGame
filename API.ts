@@ -70,6 +70,7 @@ export interface game {
   turns: number;
   next: boolean;
   player: number;
+  skipped: boolean;
 }
 export interface tile {
   x: number;
@@ -190,6 +191,7 @@ export async function createGame(gameTitle: string): Promise<void> {
     usedTiles: [],
     turns: 0,
     next: true,
+    skipped: false,
   });
 }
 

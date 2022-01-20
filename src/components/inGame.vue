@@ -19,7 +19,9 @@
           </div>
           <div>
             <button class="btn btn-info shadow-none" @click="draw()">draw</button>
-            <button class="btn btn-info shadow-none" @click="skip()">skip</button>
+            <button class="btn btn-info shadow-none" @click="game.skipped ? nextRound() : skip()">
+              {{ game.skipped ? "initiative ergreifen" : "skip turn" }}
+            </button>
             <div class="d-flex">
               <div
                 class="tile"
@@ -189,7 +191,7 @@ export default defineComponent({
       self: null as unknown as API.Player,
       side: "", // playerOne || playerTwo
       cards: [] as API.card[],
-      largeCard: null as API.card[] | null, //hover display of handcards
+      largeCard: null as unknown as API.card[] | null, //hover display of handcards
 
       //game
       player: 1, //whos turn it is -> gamestate
@@ -249,12 +251,30 @@ export default defineComponent({
     },
     //round
     round() {
-      if (this.roundstart) {
+      if (this.game.next) {
         this.game.turns += 1;
         this.self.mana + this.managain > 6 ? (this.self.mana = 6) : (this.self.mana += this.managain);
         this.draw();
       }
       this.turn();
+    },
+    async nextRound() {
+      this.player == 1 ? (this.game.player = 2) : (this.game.player = 1);
+      this.game.next = true;
+      this.game.skipped = false;
+      await API.updateGame(this.game);
+    },
+    skip() {
+      this.choseMove = false;
+      this.placeable = [];
+      this.game.skipped = true;
+      this.turnend();
+    },
+    async turnend() {
+      // this.self.handcards.forEach(c => (this.player == 1 ? this.game.user1.discarded.push(c) : this.game.user2.discarded.push(c)));
+      // this.self.handcards = [];
+      this.player == 1 ? (this.game.player = 2) : (this.game.player = 1);
+      await API.updateGame(this.game);
     },
     //turn
     turn() {
@@ -264,35 +284,32 @@ export default defineComponent({
     enableTiles(selectedCard: API.card, x?: number, y?: number) {
       if (!this.choseMove) return;
       if (this.self.mana - selectedCard.manacost < 1) return;
+      this.selected = selectedCard;
 
-      switch (x != undefined && y != undefined) {
-        case false:
-          switch (selectedCard.type) {
-            case "unit":
-              this.placeable = [this.side + "spawn"];
-              break;
-            case "event":
-              this.placeable = ["playerOnespawn", "battle", "playerTwospawn"];
-              break;
-            case "equipment":
-              // this.game.usedTiles.forEach((t, i) => {
-              //   this.equipable.fields.push({ x: t.x, y: t.y });
-              // });
-              break;
-          }
-          break;
-        case true:
-          if (!x || !y) return;
-          this.selected = selectedCard;
-          this.mapLayout.forEach((r, rIndex) =>
-            r.forEach((t, tIndex) => {
-              Math.abs(x - tIndex) <= this.selected.movement && Math.abs(y - rIndex) <= this.selected.movement
-                ? this.moveable.push({ x: tIndex, y: rIndex })
-                : null;
-            })
-          );
-          this.moveable;
-          break;
+      if (x == undefined && y == undefined) {
+        switch (selectedCard.type) {
+          case "unit":
+            this.placeable = [this.side + "spawn"];
+            break;
+          case "event":
+            this.placeable = ["playerOnespawn", "battle", "playerTwospawn"];
+            break;
+          case "equipment":
+            // this.game.usedTiles.forEach((t, i) => {
+            //   this.equipable.fields.push({ x: t.x, y: t.y });
+            // });
+            break;
+        }
+      } else {
+        console.log("test");
+        this.mapLayout.forEach((r, rIndex) =>
+          r.forEach((t, tIndex) => {
+            Math.abs(x! - tIndex) <= this.selected.movement - 1 && Math.abs(y! - rIndex) <= this.selected.movement - 1
+              ? this.moveable.push({ x: tIndex, y: rIndex })
+              : null;
+          })
+        );
+        console.log(this.moveable);
       }
     },
     placeCard(tile: number, row: number) {
@@ -300,6 +317,7 @@ export default defineComponent({
       if (typeof this.placeable[0] === "string") if (!this.placeable.find(t => t == this.mapLayout[row][tile].type)) return;
 
       let pickedTile = this.game.usedTiles.find(t => t.x == tile && t.y == row);
+      console.log(pickedTile, this.selected);
       if (pickedTile?.cards == undefined) this.game.usedTiles.push({ x: tile, y: row, cards: [{ ...this.selected }], player: this.player });
       //TODO: pushes undefined atm
       else return;
@@ -311,20 +329,7 @@ export default defineComponent({
       this.removeHandCard(this.selected);
       this.turnend();
     },
-    skip() {
-      this.choseMove = false;
-      this.placeable = [];
-      this.turnend();
-    },
-    async turnend() {
-      // this.self.handcards.forEach(c => (this.player == 1 ? this.game.user1.discarded.push(c) : this.game.user2.discarded.push(c)));
-      // this.self.handcards = [];
-      this.player == 1 ? (this.game.player = 2) : (this.game.player = 1);
-      await API.updateGame(this.game);
-    },
-    roundend() {
-      this.game.next = false;
-    },
+
     //cards
     draw() {
       console.log("draw");
