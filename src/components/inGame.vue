@@ -72,8 +72,7 @@
                 :class="selectable.find(t => t.x == tileIndex && t.y == rowIndex) ? 'placeable' : ''"
               >
                 <div
-                  @click="game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)?.cards ? 
-                    enableTiles(game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)!.cards[0],'movement',tileIndex,rowIndex,) : null"
+                  @click=" enableTiles(game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)!.cards[0],'movement',tileIndex,rowIndex,)"
                   class="tile"
                   @mouseover="largeCard = game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)?.cards || null"
                   @mouseleave="largeCard = null"
@@ -94,7 +93,7 @@
                   "
                 >
                   {{
-                    game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)?.cards.map(c => `${c.name}`) ||
+                    game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)?.cards.map(c => `${c.name} hp:${c.hp}`) ||
                     (tile.type == "playerOnecrystal" || tile.type == "playerTwocrystal" ? "crystal" : "")
                   }}
                 </div>
@@ -198,12 +197,10 @@ export default defineComponent({
       roundstart: true, //does my round start
 
       choseMove: false, //waiting for card to get played
-      placeable: [] as string[], // placeable tiles
-      moveable: [] as API.point[], // tiles were the unit can move to
-      equipable: [] as unknown as API.equipable, // equipable tiles
       selected: null as unknown as API.card, //selected card
       moving: null as unknown as API.point, //spot from card thats getting moved
       selectable: [] as API.point[],
+      actionType: "" as "handcard" | "movement",
 
       enemyDiscarded: [] as API.card[], // Ablagestapel gegner
       selfDiscarded: [] as API.card[], // eigener ablagestapel
@@ -292,10 +289,11 @@ export default defineComponent({
       this.disableTiles();
       console.log("enableTiles");
       if (!this.choseMove) return;
-      this.selected = selectedCard; //vllt unnötig
+      this.selected = selectedCard;
 
       switch (actiontype) {
         case "handcard":
+          this.actionType = actiontype;
           if (this.self.mana - selectedCard.manacost < 0) return;
           switch (selectedCard.type) {
             case "unit":
@@ -322,7 +320,10 @@ export default defineComponent({
           }
           break;
         case "movement":
+          if (!this.game.usedTiles.find(t => t.x == x && t.y == y)?.cards) return;
           console.log("movement");
+          this.actionType = actiontype;
+          if (this.self.mana < 1) return;
           if (x == undefined || y == undefined) return;
           if (this.game.usedTiles.find(c => c.x == x && c.y == y)?.player != this.player) return;
 
@@ -342,36 +343,43 @@ export default defineComponent({
           break;
       }
     },
+    placeCard(tile: number, row: number) {
+      console.log("placeCard");
+
+      if (!this.choseMove) return;
+      if (!this.Placeable(tile, row)) return;
+
+      let pickedTile = this.game.usedTiles.find(t => t.x == tile && t.y == row);
+
+      switch (this.actionType) {
+        case "handcard":
+          if (!pickedTile?.cards) {
+            this.game.usedTiles.push({ x: tile, y: row, cards: [{ ...this.selected }], player: this.player });
+            this.self.mana -= this.selected.manacost;
+            this.removeHandCard(this.selected);
+          } else return;
+          break;
+        case "movement":
+          if (!pickedTile?.cards) {
+            if (this.moving?.x != undefined) {
+              this.game.usedTiles.splice(
+                this.game.usedTiles.findIndex(t => t.x == this.moving.x && t.y == this.moving.y),
+                1
+              );
+            }
+            this.game.usedTiles.push({ x: tile, y: row, cards: [{ ...this.selected }], player: this.player });
+            this.moving = null as unknown as API.point;
+          } else return; // else if enemy attack
+          break;
+      }
+
+      this.choseMove = false;
+      this.turnend();
+    },
     disableTiles() {
       console.log("disableTiles");
       this.selected = null as unknown as API.card;
       this.selectable = [];
-    },
-    placeCard(tile: number, row: number) {
-      console.log("placeCard");
-      if (!this.choseMove) return;
-      if (typeof this.placeable[0] === "string") if (!this.placeable.find(t => t == this.mapLayout[row][tile].type)) return;
-      if (this.mapLayout[row][tile].type.includes("crystal")) return;
-
-      let pickedTile = this.game.usedTiles.find(t => t.x == tile && t.y == row);
-      if (pickedTile?.cards == undefined) {
-        this.game.usedTiles.push({ x: tile, y: row, cards: [{ ...this.selected }], player: this.player });
-        if (this.moving?.x != undefined) {
-          this.game.usedTiles.splice(
-            this.game.usedTiles.findIndex(t => t.x == this.moving.x && t.y == this.moving.y),
-            1
-          );
-        }
-      } else return; // else if enemy attack
-
-      this.choseMove = false;
-      this.self.mana -= this.selected.manacost;
-      this.player == 1 ? (this.game.user1.mana = this.self.mana) : (this.game.user2.mana = this.self.mana);
-      this.placeable = [];
-      this.moving = null as unknown as API.point;
-
-      this.removeHandCard(this.selected);
-      this.turnend();
     },
     Placeable(x: number, y: number): boolean {
       if (this.selectable.find(t => t.x == x && t.y == y)) return true;
