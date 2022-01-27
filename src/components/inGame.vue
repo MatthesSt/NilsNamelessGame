@@ -18,8 +18,8 @@
             <div>mana: {{ self.mana }}</div>
           </div>
           <div>
-            <button class="btn btn-info shadow-none" @click.stop="draw()">draw</button>
-            <button class="btn btn-info shadow-none" @click.stop="game.skipped ? roundend() : skip()">
+            <button class="btn btn-info shadow-none" @click.stop="draw(5)">draw</button>
+            <button class="btn btn-info shadow-none" @click.stop="game.skipped == 3 ? roundend() : skip()">
               {{ game.skipped ? "initiative ergreifen" : "skip turn" }}
             </button>
             <div class="d-flex">
@@ -43,7 +43,15 @@
                 <div>{{ card?.name }}</div>
                 <div>cost:{{ card?.manacost }} typ:{{ card?.type }}</div>
                 <div>R:{{ card?.range }} || M:{{ card?.movement }} || HP:{{ card?.hp }} || A:{{ card?.armor }} || TP:{{ card?.tp }}</div>
-                <div>up:{{ card.up }}||left:{{ card.left }}||right:{{ card.right }}||down:{{ card.down }}</div>
+                <div>
+                  up:{{ card.up }}
+                  <br />
+                  left:{{ card.left }}
+                  <br />
+                  right:{{ card.right }}
+                  <br />
+                  down:{{ card.down }}
+                </div>
               </div>
             </div>
             <div class="d-flex align-items-center flex-column mt-2">
@@ -72,7 +80,7 @@
                 :class="selectable.find(t => t.x == tileIndex && t.y == rowIndex) ? 'placeable' : ''"
               >
                 <div
-                  @click=" enableTiles(game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)!.cards[0],'movement',tileIndex,rowIndex,)"
+                  @click="!selected?.id ? enableTiles(game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)!.cards[0],'movement',tileIndex,rowIndex,):null"
                   class="tile"
                   @mouseover="largeCard = game.usedTiles.find(t => t.x == tileIndex && t.y == rowIndex)?.cards || null"
                   @mouseleave="largeCard = null"
@@ -198,7 +206,7 @@ export default defineComponent({
 
       choseMove: false, //waiting for card to get played
       selected: null as unknown as API.card, //selected card
-      moving: null as unknown as API.point, //spot from card thats getting moved
+      acting: null as unknown as API.point, //spot from card thats acting
       selectable: [] as API.point[],
       actionType: "" as "handcard" | "movement",
 
@@ -255,18 +263,18 @@ export default defineComponent({
       this.game.turns += 1;
       this.mapLayout.forEach(r => r.forEach(t => (t.type == this.side + "crystal" ? (this.managain += 1) : null)));
       this.self.mana + this.managain > 6 ? (this.self.mana = 6) : (this.self.mana += this.managain);
-      this.draw();
+      this.draw(Math.min(5, this.self.discarded.length + this.self.deck.cards.length));
       this.turn();
     },
     turn() {
       console.log("turn");
       this.choseMove = true;
     },
-    skip() {
+    async skip() {
       console.log("skip");
       this.choseMove = false;
-      this.game.skipped = true;
-      this.turnend();
+      this.game.skipped = 3;
+      await this.turnend();
     },
     async turnend() {
       console.log("turnend");
@@ -279,7 +287,7 @@ export default defineComponent({
     async roundend() {
       console.log("roundend");
       this.game.next = true;
-      this.game.skipped = false;
+      this.game.skipped = this.player;
       this.self.handcards.forEach(c => this.self.discarded.push(c));
       this.self.handcards = [];
       await this.turnend();
@@ -334,7 +342,7 @@ export default defineComponent({
                 : null;
             })
           );
-          this.moving = this.selectable.find(p => p.x == x && p.y == y)!;
+          this.acting = this.selectable.find(p => p.x == x && p.y == y)!;
           this.selectable.splice(
             this.selectable.findIndex(p => p.x == x && p.y == y),
             1
@@ -361,20 +369,41 @@ export default defineComponent({
           break;
         case "movement":
           if (!pickedTile?.cards) {
-            if (this.moving?.x != undefined) {
-              this.game.usedTiles.splice(
-                this.game.usedTiles.findIndex(t => t.x == this.moving.x && t.y == this.moving.y),
-                1
-              );
-            }
+            this.game.usedTiles.splice(
+              this.game.usedTiles.findIndex(t => t.x == this.acting.x && t.y == this.acting.y),
+              1
+            );
+
             this.game.usedTiles.push({ x: tile, y: row, cards: [{ ...this.selected }], player: this.player });
-            this.moving = null as unknown as API.point;
-          } else return; // else if enemy attack
+            this.acting = null as unknown as API.point;
+          } else {
+            if (pickedTile.player != this.player) {
+              console.log("attack");
+              this.attack({ x: pickedTile.x, y: pickedTile.y }, this.acting);
+            }
+          }
           break;
       }
 
       this.choseMove = false;
       this.turnend();
+    },
+    attack(defender: API.point, attacker: API.point) {
+      let TP = this.getTileTP(attacker);
+      let A = this.getTileA(defender);
+      let tileIndex = this.game.usedTiles.findIndex(t => t.x == defender.x && t.y == defender.y);
+      this.game.usedTiles[tileIndex].cards[0].hp -= TP - A > 0 ? TP - A : 0;
+      if (this.game.usedTiles[tileIndex].cards[0].hp < 1) this.game.usedTiles.splice(tileIndex, 1);
+    },
+    getTileA(tile: API.point): number {
+      let armor = 0;
+      this.game.usedTiles.find(t => t.x == tile.x && t.y == tile.y)?.cards.forEach(c => (armor += c.armor));
+      return armor;
+    },
+    getTileTP(tile: API.point): number {
+      let tp = 0;
+      this.game.usedTiles.find(t => t.x == tile.x && t.y == tile.y)?.cards.forEach(c => (tp += c.tp));
+      return tp;
     },
     disableTiles() {
       console.log("disableTiles");
@@ -386,36 +415,27 @@ export default defineComponent({
       return false;
     },
     //cards
-    draw() {
+    draw(amount: number) {
       console.log("draw");
-      for (let i = 0; i < 5; i++) {
-        if (this.self.deck.cards.length > 0) {
-          let drawn = this.getCard();
-          if (drawn) this.self.handcards.push(drawn);
-        } else {
-          return;
-          //TODO: ablagestapel nachmischen
-        }
+      for (let i = 0; i < amount; i++) {
+        this.self.handcards.push(this.getCard());
       }
     },
-    getCard(): API.card | undefined {
-      if (!this.self.deck.cards) return;
+    getDiscarded() {
+      this.self.discarded.forEach(d => this.self.deck.cards.push({ id: d.id }));
+      this.self.discarded = [];
+    },
+    getCard(): API.card {
+      if (!this.self.deck.cards.length) this.getDiscarded();
       this.self.deck.cards.shuffle();
       let drawn = this.self.deck.cards.pop();
-      if (!drawn) return;
       let card = this.cards.find(card => card.id == drawn?.id);
-      if (card && this.player == 1) {
-        console.log("initial", { up: card.up }, { down: card.down });
-        let up = card.up;
-        let down = card.down;
-        card.up = down;
-        card.down = up;
-        console.log("swapped", { up: card.up }, { down: card.down });
-        return card;
-      } else {
-        console.log("else", card);
-        return card;
+      if (!card) throw new Error("Card.id not found in getCard()");
+      if (this.player == 1) {
+        [card.up, card.down] = [card.down, card.up];
       }
+      console.log(card);
+      return card;
     },
     removeHandCard(card: API.card) {
       let index = this.self.handcards.findIndex(c => c.id == card.id);

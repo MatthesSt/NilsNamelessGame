@@ -70,7 +70,7 @@ export interface game {
   turns: number;
   next: boolean;
   player: number;
-  skipped: boolean;
+  skipped: number;
 }
 export interface tile {
   x: number;
