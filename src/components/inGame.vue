@@ -414,7 +414,7 @@ export default defineComponent({
               } else return;
               break;
             case "equipment":
-              console.log("case equip");
+              console.log("case equipment");
               if (pickedTilePlayer !== this.player) return;
               if (!pickedTileCards) return;
               this.game.usedTiles.find(t => t.x == pickedTile.x && t.y == pickedTile.y)?.cards.push(this.selected);
